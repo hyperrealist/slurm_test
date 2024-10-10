@@ -1,0 +1,6 @@
+---
+
+- name: Basic connectivity test
+  hosts: all
+  roles:
+    - test_connectivity

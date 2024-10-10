@@ -1,0 +1,8 @@
+[controllers]
+node1@orb ansible_user=node1
+
+[workers]
+node2@orb ansible_user=node2
+node3@orb ansible_user=node3
+node4@orb ansible_user=node4
+node5@orb ansible_user=node5

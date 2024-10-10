@@ -1,0 +1,7 @@
+---
+
+- name: Install and configure slurm
+  hosts: all
+  become: true
+  roles:
+    - slurm
