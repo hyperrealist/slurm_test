@@ -1,0 +1,54 @@
+---
+
+- name: Check munge dir
+  ansible.builtin.file:
+    path: /etc/munge
+    owner: munge
+    group: munge
+    mode: "0700"
+    state: directory
+
+- name: Check if new munge key is needed
+  ansible.builtin.set_fact:
+    create_new_munge_key: true
+  when: >
+    slurm_munge_key is undefined and
+    ('slurmdbdservers' in group_names or 'dbd' in slurm_roles) and
+    ('slurmservers' in group_names or 'controller' in slurm_roles) and
+    ('slurmexechosts' in group_names or 'exec' in slurm_roles)
+
+- name: Create new munge key for cluster
+  ansible.builtin.command: mungekey --create --force --verbose
+  register: mungekey_output
+  changed_when: mungekey_output.rc == 0
+  failed_when: mungekey_output.rc != 0
+  when: create_new_munge_key == true and inventory_hostname == play_hosts[0]
+
+- name: Retrieve new munge key
+  ansible.builtin.fetch:
+    src: /etc/munge/munge.key
+    dest: /tmp/munge.key
+    flat: true
+  when: create_new_munge_key == true and inventory_hostname == play_hosts[0]
+
+- name: Set new munge key in slurm_munge_key
+  ansible.builtin.set_fact:
+    slurm_munge_key: /tmp/munge.key
+  when: create_new_munge_key == true
+
+- name: Deploy munge key on cluster
+  ansible.builtin.copy:
+    src: "{{ slurm_munge_key }}"
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: "0400"
+  when: slurm_munge_key is defined
+  notify:
+    - Restart munge
+
+- name: Ensure Munge is enabled and running
+  ansible.builtin.service:
+    name: munge
+    enabled: true
+    state: started

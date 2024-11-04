@@ -2,6 +2,8 @@
 
 - name: Install and configure slurm
   hosts: all
-  become: true
+  vars:
+    slurm_roles: ['controller', 'exec', 'dbd']
   roles:
-    - slurm
+    - role: slurm
+      become: true
