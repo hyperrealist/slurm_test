@@ -43,7 +43,8 @@ __slurm_debian: "{{ ansible_os_family == 'Debian' }}"
 __slurm_redhat: "{{ ansible_os_family == 'RedHat' }}"
 
 __slurm_config_default:
-  AccountingStorageType: accounting_storage/none
+  AccountingStorageType: accounting_storage/slurmdbd
+  AccountingStorageHost: "{{ ansible_hostname }}"
   AuthType: auth/munge
   CryptoType: crypto/munge
   SlurmUser: "{{ __slurm_user_name }}"
@@ -93,6 +94,7 @@ __slurmdbd_config_default:
   DbdPort: 6819
   SlurmUser: "{{ __slurm_user_name }}"
   StorageType: accounting_storage/mysql
+  DbdHost: "{{ ansible_hostname }}"
   SlurmctldPidFile: "{{ __slurm_run_dir ~ '/slurmdbd.pid' if __slurm_debian else omit }}"
   LogFile: "{{ __slurm_log_dir ~ '/slurmdbd.log' if __slurm_debian else omit }}"
 __slurmdbd_config_merged: "{{ __slurmdbd_config_default | combine(slurmdbd_config | default({})) }}"

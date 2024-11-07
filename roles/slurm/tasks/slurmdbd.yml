@@ -32,3 +32,15 @@
     label: "{{ item.name }}"
   notify:
     - Reload slurmdbd
+
+# - name: Install PyMySQL
+#   ansible.builtin.pip:
+#     name: PyMySQL
+#   when: __slurmdbd_config_default.StorageType == "accounting_storage/mysql"
+
+
+# - name: Add slurm user to db
+#   community.mysql.mysql_user:
+#     name: slurm
+#     state: present
+#   when: __slurmdbd_config_default.StorageType == "accounting_storage/mysql"
